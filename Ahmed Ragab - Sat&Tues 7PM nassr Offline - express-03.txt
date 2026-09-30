@@ -1,0 +1,120 @@
+event loop is the core of nodejs that allows it to run async non blocking code by taking tasks from queue to stack when it is empty.
+//     =Q1=
+//
+//     libuv is a c library nodejs uses to handle async operations like file system and networking using thread pool and event loop.
+//     =Q2=
+//
+//     nodejs sends async tasks like file reading or network requests to libuv or operating system and when done callback is sent to queue.
+//     =Q3=
+//
+//     call stack executes sync code, event queue holds callbacks waiting to run, and event loop moves callbacks from queue to stack when stack is clear.
+//     =Q4=
+//
+//     thread pool is used by libuv to do heavy work off the main thread, and we change size by UV_THREADPOOL_SIZE environment variable.
+//     =Q5=
+//
+//     blocking code stops execution of next code until it finishes, while non blocking lets code run asynchronously without waiting.
+//     =Q6=
+// const fs = require('fs');
+// const express = require('express');
+// const app = express();
+// app.use(express.json());
+// const filePath = './users.json';
+// const readUsers = () => {
+//     if (!fs.existsSync(filePath)) {
+//         fs.writeFileSync(filePath, JSON.stringify([]));
+//     }
+//     return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+// };
+// const writeUsers = (data) => {
+//     fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+// };
+// =Q7=
+//     app.post('/user', (req, res) => {
+//         const { name, age, email } = req.body;
+//         const users = readUsers();
+//         const exist = users.find(u => u.email === email);
+//         if (exist) {
+//             return res.status(400).json({ message: "Email already exists." });
+//         }
+//         const newUser = { id: users.length ? users[users.length - 1].id + 1 : 1, name, age, email };
+//         users.push(newUser);
+//         writeUsers(users);
+//         res.status(201).json({ message: "User added successfully." });
+//     });
+// =Q8=
+//     app.patch('/user/:id', (req, res) => {
+//         const id = parseInt(req.params.id);
+//         const { name, age, email } = req.body;
+//         const users = readUsers();
+//         const user = users.find(u => u.id === id);
+//         if (!user) {
+//             return res.status(404).json({ message: "User ID not found." });
+//         }
+//         if (name) user.name = name;
+//         if (age) user.age = age;
+//         if (email) user.email = email;
+//         writeUsers(users);
+//         res.status(200).json({ message: "User age updated successfully." });
+//     });
+// =Q9=
+//     app.delete('/user/:id?', (req, res) => {
+//         const id = parseInt(req.params.id || req.body.id);
+//         const users = readUsers();
+//         const index = users.findIndex(u => u.id === id);
+//         if (index === -1) {
+//             return res.status(404).json({ message: "User ID not found." });
+//         }
+//         users.splice(index, 1);
+//         writeUsers(users);
+//         res.status(200).json({ message: "User deleted successfully." });
+//     });
+// =Q10=
+//     app.get('/user/getByName', (req, res) => {
+//         const { name } = req.query;
+//         const users = readUsers();
+//         const user = users.find(u => u.name === name);
+//         if (!user) {
+//             return res.status(404).json({ message: "User name not found." });
+//         }
+//         res.status(200).json(user);
+//     });
+// =Q11=
+//     app.get('/user/filter', (req, res) => {
+//         const minAge = parseInt(req.query.minAge);
+//         const users = readUsers();
+//         const filtered = users.filter(u => u.age >= minAge);
+//         if (!filtered.length) {
+//             return res.status(404).json({ message: "no user found" });
+//         }
+//         res.status(200).json(filtered);
+//     });
+// =Q12=
+//     app.get('/user/:id', (req, res) => {
+//         const id = parseInt(req.params.id);
+//         const users = readUsers();
+//         const user = users.find(u => u.id === id);
+//         if (!user) {
+//             return res.status(404).json({ message: "User not found." });
+//         }
+//         res.status(200).json(user);
+//     });
+// =Q13=
+//     app.get('/user', (req, res) => {
+//         const users = readUsers();
+//         res.status(200).json(users);
+//     });
+// =Q14=
+// var longestCommonPrefix = function(strs) {
+//     if (!strs.length) return "";
+//     let prefix = strs[0];
+//     for (let i = 1; i < strs.length; i++) {
+//         while (strs[i].indexOf(prefix) !== 0) {
+//             prefix = prefix.substring(0, prefix.length - 1);
+//             if (prefix === "") return "";
+//         }
+//     }
+//     return prefix;
+// };
+// =Q15=
+//     app.listen(3000);
